@@ -13,50 +13,86 @@ class Calculator{
         this.clear();
     }
 
-    append(character){
-        if (character === '.' && this.operation.includes(character)) return;
-        if (isFinite(this.currentOperand)){
+    appendNumber(number){
+        if (number === '.' && this.expression.includes(number)) return;
+        if (isFinite(this.currentOperand) && this.previousOperand != ''){
           this.clear();
         }
-        this.currentOperand = this.currentOperand + character;
+        this.expression += number;
+        this.currentOperand += number;
+    
+    }
 
+    formattedNumber(number){
+      let integerPart = number.split(',')[0];
+      let precisionPart = number.split(',')[1];
+
+      if (integerPart.length > 3){
+        integerPart = parseFloat(integerPart).toLocaleString("en-US");
+      }
+      if (precisionPart != undefined){
+        return `${integerPart}.${precisionPart}`;
+      } else {
+        return integerPart;
+      }
     }
 
     chooseOperator(operator){
-      if (this.currentOperand == '') return
-
+      if (this.expression == '') return;
+      let validOperator = '';
       switch (operator){
         case 'x':
-          operator = '*';
+          validOperator = '*';
           break;
-        case '+': case '-': case '/':
+        case '+': 
+          validOperator = '+';
+          break;
+        case '-': 
+          validOperator = '-';
+          break;
+        case '÷':
+          validOperator = '/';
           break;
         default:
           return
       }
-      this.currentOperand = this.currentOperand + operator;
+      this.expression += validOperator;
+      this.currentOperand += operator;
     }
 
     delete(){
-      this.currentOperand = this.currentOperand.slice(0, -1);
+      if (this.previousOperand != ''){
+        this.clear();
+        return;
+      }
+      this.expression = this.expression.slice(0,-1);
     }
 
     clear(){
-        this.currentOperand = '';
+        this.expression = '';
         this.previousOperand = '';
-        this.operation = [];
+        this.currentOperand = '';
     }
 
     calculate(){
-      if (this.currentOperand == '') return;
-        let res = eval(this.currentOperand);
+      if (this.expression== '') return;
+        let res = eval(this.expression).toString();
         this.previousOperand = this.currentOperand;
-        this.currentOperand = res;
-
+        this.expression = res;
     }
 
     updateDisplay(){
-      this.currentOperandTextElement.innerText = this.currentOperand==''? '0': this.currentOperand;
+      if (isFinite(this.expression) || this.expression == ''){
+        this.currentOperand = this.formattedNumber(this.expression);
+      } else {
+        let lastNumInExpression = this.expression.split(/[-\/\*+]/).pop();
+        let lastNumInCurrent = this.currentOperand.split(/[-÷x+]/).pop();
+        if (lastNumInExpression != ''){
+          let indexOflastNumInCurrent = this.currentOperand.lastIndexOf(lastNumInCurrent);
+          this.currentOperand = this.currentOperand.slice(0, indexOflastNumInCurrent) + this.formattedNumber(lastNumInExpression);
+      }
+    }
+      this.currentOperandTextElement.innerText = this.currentOperand ==''? '0': this.currentOperand;
         this.previousOperandTextElement.innerText = this.previousOperand;
 
     }
@@ -64,7 +100,7 @@ class Calculator{
 const calculator = new Calculator(previousOperand, currentOperand);
 numberButtons.forEach( button => {
   button.addEventListener("click", () => {
-    calculator.append(button.innerText);
+    calculator.appendNumber(button.innerText);
     calculator.updateDisplay();
   });
 });
