@@ -19,13 +19,11 @@ class Calculator{
           this.clear();
         }
         this.expression += number;
-        this.currentOperand += number;
-    
     }
 
     formattedNumber(number){
-      let integerPart = number.split(',')[0];
-      let precisionPart = number.split(',')[1];
+      let integerPart = number.split('.')[0];
+      let precisionPart = number.split('.')[1];
 
       if (integerPart.length > 3){
         integerPart = parseFloat(integerPart).toLocaleString("en-US");
@@ -85,16 +83,14 @@ class Calculator{
       if (isFinite(this.expression) || this.expression == ''){
         this.currentOperand = this.formattedNumber(this.expression);
       } else {
-        let lastNumInExpression = this.expression.split(/[-\/\*+]/).pop();
-        let lastNumInCurrent = this.currentOperand.split(/[-÷x+]/).pop();
-        if (lastNumInExpression != ''){
+          let lastNumInExpression = this.expression.split(/[-\/\*+]/).pop();
+          let lastNumInCurrent = this.currentOperand.split(/[-÷x+]/).pop();
           let indexOflastNumInCurrent = this.currentOperand.lastIndexOf(lastNumInCurrent);
           this.currentOperand = this.currentOperand.slice(0, indexOflastNumInCurrent) + this.formattedNumber(lastNumInExpression);
-      }
     }
-      this.currentOperandTextElement.innerText = this.currentOperand ==''? '0': this.currentOperand;
-        this.previousOperandTextElement.innerText = this.previousOperand;
 
+      this.currentOperandTextElement.innerText = this.currentOperand ==''? '0': this.currentOperand;
+      this.previousOperandTextElement.innerText = this.previousOperand;
     }
 }
 const calculator = new Calculator(previousOperand, currentOperand);
